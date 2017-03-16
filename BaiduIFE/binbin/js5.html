@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		.queryNum {
+			width: 20px;
+			background-color: #f00;
+			margin: 1px;
+			padding: 0;
+			cursor: pointer;
+		}
+		#query {
+			display: flex;
+			flex-flow: row wrap;
+			align-items: flex-end;
+			width: 500px;
+			min-height: 150px;
+		}
+		input {
+			margin: 2px 0;
+		}
+		.inputOuter {
+			display: flex;
+			flex-flow: row wrap;
+			align-items: center;
+			justify-content: flex-start;
+		}
+	</style>
+</head>
+<body>
+	<div class="inputOuter">	
+		<input id="input" type="text" name="number" placeholder="请输入10-100的整数">
+		<br>
+		<input id="btn_l_in" type="submit" name="left_in" value="左侧入">
+		<input id="btn_r_in" type="submit" name="right_in" value="右侧入">
+		<input id="btn_l_out" type="submit" name="left_out" value="左侧出">
+		<input id="btn_r_out" type="submit" name="right_out" value="右侧出">
+		<input id="btn_sort_up" type="submit" name="sort_up" value="升序">
+		<input id="btn_sort_down" type="submit" name="sort_down" value="降序">
+		</div>
+	<div id="query"></div>
+	<br>
+	<div>
+		<ul>
+		说明：
+			<li>点击"左侧入"，将输入的数字从左侧插入队列中；</li>
+			<li>点击"右侧入"，将input中输入的数字从右侧插入队列中；</li>
+			<li>插入对列中的数值以柱型图方式显示</li>
+			<li>点击"左侧出"，读取并删除队列左侧第一个元素，并弹窗显示元素的值；</li>
+			<li>点击"右侧出"，读取并删除队列又侧第一个元素，并弹窗显示显示元素的值；</li>
+			<li>点击队列中任何一个元素，则该元素会被从队列中删除</li>
+			<li>点击"升序"、"降序"，可对队列中的元素排序</li>
+		</ul>
+	</div>
+	<script type="text/javascript">
+	/*
+	程序功能
+	模拟一个队列，队列的每个元素是一个数字，初始队列为空
+	有一个input输入框，以及4个操作按钮
+
+	点击"左侧入"，将input中输入的数字从左侧插入队列中；
+	点击"右侧入"，将input中输入的数字从右侧插入队列中；
+	点击"左侧出"，读取并删除队列左侧第一个元素，并弹窗显示元素中数值；
+	点击"右侧出"，读取并删除队列又侧第一个元素，并弹窗显示元素中数值；
+	点击队列中任何一个元素，则该元素会被从队列中删除
+	*/	
+	(function() {
+		//coding here...
+		var que = document.getElementById("query");
+		var input = document.getElementById("input");
+		var queData = [];
+		//render()方法更新query中的数据
+		function render(t,re) {
+			//先清空数据 
+			var data = getData(t,re); 
+			var queCount = que.children.length;
+			if(que.children.length != 0) {
+				for (var j = 0; j < queCount; j++) {
+					que.removeChild(que.children[0]);
+	 			}
+			}
+			//更新队列中的数据 
+			for (var i = 0; i < data.length; i++) {
+				var cdiv = document.createElement("div");
+				//var ctxt = document.createTextNode(data[i]);
+				cdiv.className = "queryNum";
+				var hdiv = data[i];  //队列中的数据作为元素的高
+				cdiv.style.height = hdiv + "px";
+				//cdiv.appendChild(ctxt);
+				que.appendChild(cdiv);
+ 			}
+ 			//alert(j);
+		}
+		//render();
+		//getDate()方法对query中的数据做出修改
+		function getData(t,re) {
+			var data = queData;
+			var inputVal = input.value;
+			var reg = /^[0-9]*$/;
+			var r = inputVal.match(reg);
+			//alert(r);
+			if(r == null) {   //验证输入元素是否为正整数
+				t = 6
+			} else if(inputVal == "" && t <= 2) {    //验证输入元素是否为空
+				t = 6;
+			} else if(r < 10 && t <= 2) {   //队列元素大小限制
+				t = 6;
+			} else if(r > 100 && t <= 2) {   
+				t = 6;
+			} else if(data.length == 60) {   //队列元素个数上限
+				t = 7;
+			} else if(data.length == 0 && t == 3 || t == 4 || t == 8 || t == 9) {
+				t = 10;
+			}
+			switch(t) {
+				case 1://左侧入
+					data.unshift(inputVal);
+					break;
+				case 2://右侧入
+					data.push(inputVal);
+					break;
+				case 3://左侧出
+					alert(data.shift());
+					break;
+				case 4://右侧出
+					alert(data.pop());
+					break;
+				case 5://删除指定元素
+					data.splice(re,1);
+					break;
+				case 6:
+					alert("请输入10-100的整数！重新输入！");
+					break;
+				case 7:
+					alert("队列中的元素已达上限60个，请清除部分元素再添加");
+					break;
+				case 8:
+					data.sort(function(a,b) {
+						return a - b;
+					});
+					break;
+				case 9:
+					data.sort(function(a,b) {
+						return b - a;
+					});
+					break;
+				case 10:
+					alert("队列中已没有元素！");
+					break;
+			}
+			//alert(data);
+			input.value = "";
+			return data;
+		}
+		//获取当前元素在父元素中的序号
+		function index(ev) {
+			var now = ev;
+			var i = 0;
+			while(now.previousSibling) {
+				i++;
+				now = now.previousSibling;
+			}
+			return i-1;
+		}
+	
+		//按钮事件绑定
+		document.getElementById("btn_l_in").addEventListener("click",function() {render(1);});
+		document.getElementById("btn_r_in").addEventListener("click",function() {render(2);});
+		document.getElementById("btn_l_out").addEventListener("click",function() {render(3);});
+		document.getElementById("btn_r_out").addEventListener("click",function() {render(4);});
+		document.getElementById("btn_sort_up").addEventListener("click",function() {render(8);});
+		document.getElementById("btn_sort_down").addEventListener("click",function() {render(9);});
+		//query中点击事件委托
+		que.addEventListener("click",function(ev) {
+			//alert("点击" + this.id);
+			var ev = ev || window.event;
+			var target= ev.target || ev.srcElement;
+			if (target.getAttribute("class") == "queryNum") {
+				//alert(index(target));
+				var re = index(target);
+				render(5,re);
+			}
+		});
+	})();
+	</script>
+</body>
+</html>
